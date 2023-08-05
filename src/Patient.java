@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 public class Patient {
 
     private String firstName;
@@ -9,16 +11,6 @@ public class Patient {
     private String zip;
 
     public Patient() {
-    }
-
-    public Patient(String firstName, String lastName, String addressLine1, String addressLine2, String city, String state, String zip) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.addressLine1 = addressLine1;
-        this.addressLine2 = addressLine2;
-        this.city = city;
-        this.state = state;
-        this.zip = zip;
     }
 
     public String getFirstName() {
@@ -88,5 +80,16 @@ public class Patient {
                 ", state='" + state + '\'' +
                 ", zip='" + zip + '\'' +
                 '}';
+    }
+    public ArrayList<String> toArrayList(){
+        ArrayList<String> arrayList = new ArrayList<>();
+        arrayList.add(firstName);
+        arrayList.add(lastName);
+        arrayList.add(addressLine1);
+        arrayList.add(addressLine2);
+        arrayList.add(city);
+        arrayList.add(state);
+        arrayList.add(zip);
+        return arrayList;
     }
 }

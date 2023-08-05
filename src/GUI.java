@@ -3,6 +3,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -14,7 +15,7 @@ public class GUI extends Component {
     private final static int logColumns = 30;
     private final static String newline = "\n";
 
-    private static int arrayListIndex;
+    private static int arrayListIndex = 0;
     private Path load_File_Path;
     private static ArrayList<Patient> patientArrayList;
     private JTextField fname;
@@ -86,7 +87,7 @@ public class GUI extends Component {
         c.gridx = 1;
         panel.add(prevButton, c);
         prevButton.addActionListener(this::previousButtonActionPerformed);
-        prevButton.addActionListener(this::cycleActionListenerPerformed);
+//        prevButton.addActionListener(this::cycleActionListenerPerformed);
         prevButton.setEnabled(false);
 
 
@@ -94,7 +95,7 @@ public class GUI extends Component {
         c.gridx = 2;
         panel.add(nextButton, c);
         nextButton.addActionListener(this::nextButtonActionPerformed);
-        nextButton.addActionListener(this::cycleActionListenerPerformed);
+//        nextButton.addActionListener(this::cycleActionListenerPerformed);
         nextButton.setEnabled(false);
 
         return panel;
@@ -238,9 +239,9 @@ public class GUI extends Component {
                 patient.setZip(zip.getText());
                 log.append(patient.toString());
                 log.append(newline);
-
+//                writeToFile(load_File_Path);
             } else {
-                if(saveButtonBlankValidation() == false) {
+                if(!saveButtonBlankValidation()) {
                     errorLabel.setForeground(Color.RED);
                     errorLabel.setText("One or more fields are blank");
                 }
@@ -255,21 +256,24 @@ public class GUI extends Component {
             e.printStackTrace();
         }
     }
-
+//    private void writeToFile(Path file) throws IOException {
+//        StringBuilder content = new StringBuilder();
+//        for (String s:
+//             patientArrayList.) {
+//
+//        }
+//    }
     private boolean saveButtonBlankValidation(){
-        boolean validation = !fname.getText().isBlank() &&
+        return !fname.getText().isBlank() &&
                 !lastname.getText().isBlank() &&
                 !addressLine1.getText().isBlank() &&
                 !city.getText().isBlank() &&
                 !state.getText().isBlank() &&
                 !zip.getText().isBlank();
-
-
-        return validation;
     }
 
     private boolean saveButtonCharacterValidation(){
-        boolean validation = zip.getText().matches("^[0-9]") &&
+        return zip.getText().matches("^[0-9]") &&
                 (fname.getText().matches("^[a-zA-Z]+\\s[a-zA-Z]") ||
                         fname.getText().matches("^[a-zA-Z]"))&&
                 (lastname.getText().matches("^[a-zA-Z]+\\s[a-zA-Z]") ||
@@ -280,7 +284,6 @@ public class GUI extends Component {
                         state.getText().matches("^[a-zA-Z]+\\s[a-zA-Z]"))&&
                 addressLine1.getText().matches("^[0-9]+\\s[A-Za-z]+\\s[A-Za-z]+") &&
                 addressLine2.getText().isBlank();
-        return validation;
     }
 
     private JComponent searchPanel(){
@@ -354,24 +357,32 @@ public class GUI extends Component {
     }
 
     private void previousButtonActionPerformed(ActionEvent event){
+        arrayListIndex--;
+        changeState();
+
         log.append("previous button clicked...");
         log.append(newline);
-        arrayListIndex--;
         log.append(Integer.toString(arrayListIndex));
         log.append(newline);
+
+        patientFill(arrayListIndex);
 
     }
 
     private void nextButtonActionPerformed(ActionEvent event){
+        arrayListIndex++;
+        changeState();
+
         log.append("Next Patient...");
         log.append(newline);
-        arrayListIndex++;
         log.append(Integer.toString(arrayListIndex));
         log.append(newline);
 
+        patientFill(arrayListIndex);
+
     }
 
-    private void cycleActionListenerPerformed(ActionEvent event){
+    private void changeState() {
         if(arrayListIndex == 0) {
             prevButton.setEnabled(false);
             nextButton.setEnabled(true);
@@ -384,8 +395,10 @@ public class GUI extends Component {
             nextButton.setEnabled(false);
             prevButton.setEnabled(true);
         }
-
     }
 
+
+//    hashmap https://docs.oracle.com/javase/8/docs/api/java/util/HashMap.html
+//    loading split the names and addresses into hashmaps
 
 }
