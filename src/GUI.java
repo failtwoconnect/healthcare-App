@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 
 public class GUI extends Component {
@@ -16,21 +17,21 @@ public class GUI extends Component {
     private final static String newline = "\n";
 
     private static int arrayListIndex = 0;
-    private Path load_File_Path;
+    private Patient patient;
+    private static Path load_File_Path;
     private static ArrayList<Patient> patientArrayList;
-    private JTextField fname;
-    private JTextField lastname;
-    private JTextField addressLine1;
-    private JTextField addressLine2;
-    private JTextField city;
-    private JTextField state;
-    private JTextField zip;
-    private JTextArea log;
-    private JLabel errorLabel;
-    private JTextField searchField;
-    private JScrollPane scroll;
-    private JButton prevButton;
-    private JButton nextButton;
+    private static JTextField fname;
+    private static JTextField lastname;
+    private static JTextField addressLine1;
+    private static JTextField addressLine2;
+    private static JTextField city;
+    private static JTextField state;
+    private static JTextField zip;
+    private static JTextArea log;
+    private static JLabel errorLabel;
+    private static JTextField searchField;
+    private static JButton prevButton;
+    private static JButton nextButton;
     public GUI() {
     }
 
@@ -61,7 +62,7 @@ public class GUI extends Component {
         log.setRows(logRows);
         log.setColumns(logColumns);
         c.gridy = 0;
-        scroll = new JScrollPane(log);
+        JScrollPane scroll = new JScrollPane(log);
         scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         panel.add(scroll, c);
 
@@ -73,7 +74,7 @@ public class GUI extends Component {
         return panel;
     }
 
-    private JComponent btnPanel(){
+    private JPanel btnPanel(){
         JPanel panel = new JPanel();
         panel.setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
@@ -87,15 +88,12 @@ public class GUI extends Component {
         c.gridx = 1;
         panel.add(prevButton, c);
         prevButton.addActionListener(this::previousButtonActionPerformed);
-//        prevButton.addActionListener(this::cycleActionListenerPerformed);
         prevButton.setEnabled(false);
-
 
         nextButton = new JButton("Next");
         c.gridx = 2;
         panel.add(nextButton, c);
         nextButton.addActionListener(this::nextButtonActionPerformed);
-//        nextButton.addActionListener(this::cycleActionListenerPerformed);
         nextButton.setEnabled(false);
 
         return panel;
@@ -226,8 +224,8 @@ public class GUI extends Component {
 
     private void saveButtonActionPerformed(ActionEvent event) {
         try {
-            Patient patient = new Patient();
-            if (saveButtonBlankValidation() && saveButtonCharacterValidation()) {
+            patient = new Patient();
+            if (saveButtonBlankValidation()) {
 
                 errorLabel.setText("");
                 patient.setFirstName(fname.getText());
@@ -239,7 +237,7 @@ public class GUI extends Component {
                 patient.setZip(zip.getText());
                 log.append(patient.toString());
                 log.append(newline);
-//                writeToFile(load_File_Path);
+                writeToFile(load_File_Path);
             } else {
                 if(!saveButtonBlankValidation()) {
                     errorLabel.setForeground(Color.RED);
@@ -256,13 +254,22 @@ public class GUI extends Component {
             e.printStackTrace();
         }
     }
-//    private void writeToFile(Path file) throws IOException {
-//        StringBuilder content = new StringBuilder();
-//        for (String s:
-//             patientArrayList.) {
-//
-//        }
-//    }
+
+    private void writeToFile(Path file) throws IOException {
+        StringBuilder content = new StringBuilder();
+
+        content.append(patient.getFirstName()).append(",");
+        content.append(patient.getLastName()).append(",");
+        content.append(patient.getAddressLine1()).append(",");
+        content.append(patient.getAddressLine2()).append(",");
+        content.append(patient.getCity()).append(",");
+        content.append(patient.getState()).append(",");
+        content.append(patient.getZip());
+
+        Files.writeString(file, content, Files.exists(file) ? StandardOpenOption.APPEND : StandardOpenOption.CREATE);
+
+
+    }
     private boolean saveButtonBlankValidation(){
         return !fname.getText().isBlank() &&
                 !lastname.getText().isBlank() &&
@@ -282,32 +289,12 @@ public class GUI extends Component {
                         city.getText().matches("^[a-zA-Z]+\\s[a-zA-Z]"))&&
                 (state.getText().matches("^[a-zA-Z]") ||
                         state.getText().matches("^[a-zA-Z]+\\s[a-zA-Z]"))&&
-                addressLine1.getText().matches("^[0-9]+\\s[A-Za-z]+\\s[A-Za-z]+") &&
+                (addressLine1.getText().matches("^[0-9]+\\s[A-Za-z]+\\s[A-Za-z]+\\s[a-zA-Z]") ||
+                    addressLine1.getText().matches("^[0-9]+\\s[A-Za-z]+\\s[A-Za-z]")) &&
                 addressLine2.getText().isBlank();
     }
 
-    private JComponent searchPanel(){
-        JPanel pane = new JPanel();
-        pane.setLayout(new GridBagLayout());
-        GridBagConstraints c = new GridBagConstraints();
 
-        JLabel searchLabel = new JLabel("Search");
-        c.gridx = 0;
-        c.gridy = 0;
-        pane.add(searchLabel, c);
-
-        searchField = new JTextField();
-        searchField.setColumns(columnsLength);
-        c.gridx = 1;
-        c.gridy = 0;
-        c.gridwidth = 3;
-        c.insets = new Insets(0, 5, 0, 0);
-        pane.add(searchField, c);
-
-
-
-        return pane;
-    }
 
 
     private void adminLoadButtonActionPerformed(ActionEvent event) {
@@ -400,5 +387,44 @@ public class GUI extends Component {
 
 //    hashmap https://docs.oracle.com/javase/8/docs/api/java/util/HashMap.html
 //    loading split the names and addresses into hashmaps
+    private JComponent searchPanel(){
+        JPanel pane = new JPanel();
+        pane.setLayout(new GridBagLayout());
+        GridBagConstraints c = new GridBagConstraints();
 
+        JLabel searchLabel = new JLabel("Search");
+        c.gridx = 0;
+        c.gridy = 0;
+        pane.add(searchLabel, c);
+
+        searchField = new JTextField();
+        searchField.setColumns(logColumns);
+        c.gridx = 1;
+        c.gridy = 0;
+        c.insets = new Insets(0, 10, 0, 0);
+        pane.add(searchField, c);
+
+        JButton searchButton = new JButton("Search");
+        c.gridx = 1;
+        c.gridy = 1;
+        c.insets = new Insets(10,0,0,0);
+        searchButton.addActionListener(this::searchActionPerformed);
+        pane.add(searchButton, c);
+
+
+
+        return pane;
+    }
+
+
+    private void searchActionPerformed(ActionEvent e){
+//        switch (searchField.getText().matches("^[a-zA-Z]")) {
+//            case searchField.getText() -> matches("^[0-9]+\\s[a-zA-Z]+\\s[a-zA-Z]");
+//        }
+        //fist name last name
+        if(searchField.getText().matches("^[a-zA-Z]") || searchField.getText().matches("^[a-zA-Z]+\\s[a-zA-Z]]")){
+
+        }
+        //address
+    }
 }
